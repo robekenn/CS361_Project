@@ -72,6 +72,7 @@ def info_group_page():
     print("This is where you can access all your groups. The Master List will have all your verses.")
     print("When you select a group you will have the following options (Study, Edit, Delete - cannot be undone)")
     input("Press ENTER to continue...")
+    return
 
 # ------------------- DELETE GROUP -------------------
 def delete_group(groups, choice):
@@ -120,7 +121,7 @@ def SEDScreen(groups, choice, verses_dict) -> int:
     print("| 1)Study 2)Delete 3)Back |")
     print("|-------------------------|")
     
-    option = get_int_input("Enter your choice here: ", 1, 3)
+    option = get_int_input("Enter your choice here: ", 1, 5)
     if option == 1:
         group_name = groups[choice][0]
         verses_list = verses_dict.get(group_name, [])
@@ -169,7 +170,7 @@ def group_page(groups, verses_dict) -> int:
     print("Groups: Select which group to study/edit/delete")
     print_groups_menu(groups, verses_dict)
 
-    choice = get_int_input("Enter Choice Here: ", 0, len(groups)+2)
+    choice = get_int_input("Enter Choice Here: ", 0, len(groups)+3)
 
     if choice == 0:  # Master List
         master_group, all_verses = generate_master_list(groups, verses_dict)
@@ -180,7 +181,10 @@ def group_page(groups, verses_dict) -> int:
     elif choice == len(groups)+1:  # New Group
         new_group(groups)
         return 2
-    elif choice == len(groups)+2:  # Back
+    elif choice == len(groups)+2: #info
+        info_group_page()
+        return 2
+    else:
         return 1  # go back to home page
 
 # ------------------- JSON <-> ARRAYS -------------------
@@ -232,8 +236,11 @@ def listen_verses(verses_list):
         print(f"Listening to: {v['reference']}")
         print(v['text'])
         TTS.create_and_play(f"{v['reference']}: {v['text']}")
+        points = int(Points.add_points(5).decode('utf-8'))
+        print(f"You now have {points} Points!")
         time.sleep(0.3)
 
+#lets the user type the verses for memory
 def type_verses(verses_list):
     for v in verses_list:
         clear_terminal()
@@ -249,7 +256,6 @@ def type_verses(verses_list):
             print(f"Correct verse: {v['text']}")
         input("Press ENTER for next verse...")
 
-# ------------------- MAIN -------------------
 def main():
     data = DataFuncs.getData()
     groups, verses = json_to_arrays(data)
